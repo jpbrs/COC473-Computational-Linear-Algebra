@@ -83,7 +83,6 @@ def Cholesky(matrix):
             if(i == j):
                 total = sum(result[i][k]**2 for k in range(i))
                 result[i][i] = (matrix[i][i]-total)**0.5
-                continue
 
             total = sum(result[i][k]*result[j][k] for k in range(i))
             result[i][j] = (1.0/result[j][j])*(matrix[i][j]-total)
