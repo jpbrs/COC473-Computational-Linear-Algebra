@@ -56,7 +56,7 @@ def Auxiliar(matrix, i : int):
 
     return copy_matrix[:i] + copy_matrix[i+1:]
 
-def get_transposed_matrix(matrix):
+def Transposed_Matrix(matrix):
     answer = [[0.0]*len(matrix) for i in range(len(matrix[0]))]
 
     for i in range(len(matrix)):
@@ -87,7 +87,7 @@ def Determinant(matrix):
 
 #region SubstitutionMethods
 
-def backward_sub(matrix, vector):
+def Backward_sub(matrix, vector):
     rows = len(matrix)
     result_matrix = [0 for i in range(rows)]
     result_matrix[rows-1] = vector[rows-1] / matrix[rows-1][rows-1]
@@ -101,7 +101,7 @@ def backward_sub(matrix, vector):
 
     return result_matrix
 
-def forward_sub(m1, m2, control=False):
+def Forward_Sub(m1, m2, control=False):
     rows = len(m1)
     vector = [0 for i in range(rows)]
 
@@ -142,8 +142,8 @@ def LU(matrix, vector):
             for i in range(k+1, columns):
                 decomp_matrix[i][j] = float(decomp_matrix[i][j]-decomp_matrix[i][k]*decomp_matrix[k][j])
 
-    y = forward_sub(decomp_matrix, vector)
-    return backward_sub(decomp_matrix, y) 
+    y = Forward_Sub(decomp_matrix, vector)
+    return Backward_sub(decomp_matrix, y) 
 
 def Cholesky(matrix, vector):
     columns = len(matrix[0])
@@ -164,8 +164,8 @@ def Cholesky(matrix, vector):
                 total = sum(decomp_matrix[i][k]*decomp_matrix[j][k] for k in range(i))
                 decomp_matrix[i][j] = (1.0/decomp_matrix[j][j])*(matrix[i][j]-total)
 
-    y = forward_sub(decomp_matrix, vector, True)
-    return backward_sub(get_transposed_matrix(decomp_matrix), y)
+    y = Forward_Sub(decomp_matrix, vector, True)
+    return Backward_sub(Transposed_Matrix(decomp_matrix), y)
 
 #endregion
 
