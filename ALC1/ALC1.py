@@ -3,7 +3,6 @@ import copy
 import math
 import argparse
 from argparse import RawTextHelpFormatter
-from array import array
 #endregion
 
 #region ExampleMatrixes
