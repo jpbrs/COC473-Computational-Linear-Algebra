@@ -1,10 +1,14 @@
+#region Imports
 import copy
 import math
+#endregion
 
+#region ExampleMatrixes
 example_matrix = [[5,-4,1,0],[-4,6,-4,1],[1,-4,6,-4],[0,1,-4,5]]
 example_vector = [-1,2,1,3]
 example_jacobi_matrix = [[6,1,1,1,1],[1,7,1,1,1],[1,1,8,1,1],[1,1,1,9,1],[1,1,1,1,10]]
 example_jacobi_vector = [-10,-6,0,8,18]
+#endregion
 
 #region Exceptions
 
@@ -18,6 +22,9 @@ class NotPositiveDefiniteException(Exception):
     pass
 
 class DiagonallyDominantException(Exception):
+    pass
+
+class GeneralConvergenceException(Exception):
     pass
 
 #endregion
@@ -104,6 +111,16 @@ def Determinant(matrix):
             determinant += matrix[i][0]*((-1)**i) * Determinant(Auxiliar(matrix, i))
         return determinant
 
+def Vect_Mul(vector_a, vector_b):
+    result = 0
+
+    for i in range(len(vector_a)):
+        for j in range(len(vector_b)):
+            if (i == j):
+                result += vector_a[i]*vector_b[i]
+
+    return result
+
 #endregion
 
 #region SubstitutionMethods
@@ -147,7 +164,7 @@ def Forward_Sub(m1, m2, control=False):
 
 #region SystemsSolvingMethods
 
-def LU(matrix, vector):
+def LU(matrix, vector, isRounded = True):
     columns = len(matrix[0])
     rows = len(matrix)
 
@@ -168,9 +185,15 @@ def LU(matrix, vector):
                 decomp_matrix[i][j] = float(decomp_matrix[i][j]-decomp_matrix[i][k]*decomp_matrix[k][j])
 
     y = Forward_Sub(decomp_matrix, vector)
-    print(Backward_sub(decomp_matrix, y))
+    solution = Backward_sub(decomp_matrix, y)
 
-def Cholesky(matrix, vector):
+    if isRounded:
+        for i in range(0,len(solution)):
+            solution[i] = round(solution[i],3)
+
+    print("Solution: ",solution)
+
+def Cholesky(matrix, vector, isRounded =  True):
     columns = len(matrix[0])
     rows = len(matrix)
 
@@ -194,58 +217,113 @@ def Cholesky(matrix, vector):
                 decomp_matrix[i][j] = (1.0/decomp_matrix[j][j])*(matrix[i][j]-total)
 
     y = Forward_Sub(decomp_matrix, vector, True)
-    print(Backward_sub(Transposed_Matrix(decomp_matrix), y))
+    solution = Backward_sub(Transposed_Matrix(decomp_matrix), y)
 
-def Iterative_Jacobi(matrix, vector):
+    if isRounded:
+        for i in range(0,len(solution)):
+            solution[i] = round(solution[i],3)
+
+    print("Solution: ",solution)
+
+def Iterative_Jacobi(matrix, vector, isRounded = True, tol = 10**(-5)):
     try:
-        if not Diagonally_Dominant(matrix): raise DiagonallyDominantException("Warning : O método não garante a convergência dessa matriz")
+        if not Diagonally_Dominant(matrix): raise DiagonallyDominantException("Warning : A matriz não é Diagonal Dominante")
     except Exception as ex:
         print(ex)
         exit()
 
     n = len(matrix)
-    solution_zero = [0.0 for i in range(n)]
-    next_solution = [0.0 for i in range(n)]
-
-    tol = 10**(-5)
+    result = [0.0 for i in range(n)]
+    zero = [0.0 for i in range(n)]
     residue = 1
-    step = 0
+    iteration = 0
 
     while (residue > tol):
         numerator = 0
         denominator = 0
 
         for j in range(n):
-            next_solution[j] = vector[j]
+            result[j] = vector[j]
             for k in range(n):
                 if (j != k):
-                    next_solution[j] += (-1)*(matrix[j][k] * solution_zero[k])
-            next_solution[j] /= matrix[j][j]
+                    result[j] += (-1)*(matrix[j][k] * zero[k])
+            result[j] /= matrix[j][j]
 
         for z in range(n):
-            numerator += (next_solution[z]-solution_zero[z])**2
-            denominator += next_solution[z]**2
+            numerator += (result[z]-zero[z])**2
+            denominator += result[z]**2
 
         residue = float(numerator**0.5)/(denominator**0.5)
 
-        for i in range(len(next_solution)):
-            solution_zero[i] = next_solution[i]
-        step += 1
+        for i in range(len(result)):
+            zero[i] = result[i]
+        iteration += 1
 
-    print("x1: ", next_solution)
-    print("residue: ", residue)
-    print("iteration_number: ", step)
+    if isRounded:
+        for i in range(0,len(result)):
+            result[i] = round(result[i],3)
+        residue = round(residue,3)
 
+    print("Solution: ", result)
+    print("Residue: ", residue)
+    print("Number of iterations: ", iteration)
+
+def gauss_seidel(matrix, vector, isRounded = True, tol = 10**(-5)):
+    try:
+        if not ( Diagonally_Dominant(matrix) or ( Is_Symmetric(matrix) and Positive_Definite(matrix) ) ) : raise GeneralConvergenceException("Warning : O algoritmo não converge para essa matriz")
+    except Exception as ex:
+        print(ex)
+        exit()
+
+    n = len(matrix)
+
+    solution_zero = [1.0 for i in range(n)]
+    solution = [0.0 for i in range(n)]
+    residue = 1
+    iteration = 0
+
+    while (residue > tol):
+        numerator = 0
+        denominator = 0
+        second_summation = 0
+        second_summation = 0
+
+        for j in range(n):
+            first_summation = Vect_Mul(matrix[j][:j], solution[:j])
+            second_summation = Vect_Mul(matrix[j][j+1:], solution_zero[j+1:])
+            solution[j] = (vector[j] - first_summation - second_summation)/matrix[j][j]
+
+        for z in range(n):
+            numerator += (solution[z] - solution_zero[z])**2
+            denominator += solution[z]**2
+
+        residue = float(numerator**0.5)/(denominator**0.5)
+
+        for i in range(len(solution)):
+            solution_zero[i] = solution[i]
+
+        iteration += 1
+
+    if isRounded:
+        for i in range(0,len(solution)):
+            solution[i] = round(solution[i],3)
+        residue = round(residue,3)
+
+    print("Solution: ", solution)
+    print("Residue: ", residue)
+    print("Number of Iterations: ", iteration)
 #endregion
 
 #region Tests
 if __name__ == '__main__':
     print("\nDecomposição LU")
-    LU(example_matrix,example_vector)
+    LU(example_matrix,example_vector, True)
     print("\nDecomposição de Cholesky")
-    Cholesky(example_matrix,example_vector)
+    Cholesky(example_matrix,example_vector, True)
     print("\nMétodo Iterativo de Jacobi")
-    Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector)
+    Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, True)
+    print("\nMétodo de Gauss Seidel")
+    gauss_seidel(example_jacobi_matrix,example_jacobi_vector, True)
 #endregion
 
 
