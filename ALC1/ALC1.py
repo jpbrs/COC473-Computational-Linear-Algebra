@@ -3,6 +3,7 @@ import copy
 import math
 import argparse
 from argparse import RawTextHelpFormatter
+from array import array
 #endregion
 
 #region ExampleMatrixes
@@ -329,30 +330,42 @@ if __name__ == '__main__':
     parser.add_argument('--TOLm','-t',type=float, help="Tolerance Number of Jacobi and Gauss-Sidel Methods. Default : 10**(-5)")
     parser.add_argument('--long','-l',help="Return the long number in scientific notation. Default: Rounded Number",action='store_true')
 
-    args = parser.parse_args()  
+    args = parser.parse_args()
+
+    with open(args.matrix, 'r') as f:
+        list_m = [[float(num) for num in line.split(',')] for line in f]
+    with open(args.vector, 'r') as f:
+        list_v = [[float(num) for num in line.split(',')] for line in f][0]
+
+    print("Matriz Fornecida :")
+    for item in list_m:
+        print(item)
+
+    print("\nVetor Fornecido :")
+    print(list_v)
     
     ########################## Resolution Methods #############################
     if args.ICOD == 1:
         print("\nDecomposição LU")
-        LU(example_matrix,example_vector,not args.long)
+        LU(list_m,list_v,not args.long)
     if args.ICOD == 2:
         print("\nDecomposição de Cholesky")
-        Cholesky(example_matrix,example_vector,not args.long)
+        Cholesky(list_m,list_v,not args.long)
     if args.ICOD == 3:
         print("\nMétodo Iterativo de Jacobi")
         if args.TOLm:
-            Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, not args.long, args.TOLm)
+            Iterative_Jacobi(list_m,list_v, not args.long, args.TOLm)
         else:
-            Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, not args.long)
+            Iterative_Jacobi(list_m,list_v, not args.long)
     if args.ICOD == 4:
         print("\nMétodo de Gauss Seidel")
         if args.TOLm:
-            Gauss_Sidel(example_jacobi_matrix,example_jacobi_vector, not args.long, args.TOLm)
+            Gauss_Sidel(list_m,list_v, not args.long, args.TOLm)
         else:
-            Gauss_Sidel(example_jacobi_matrix,example_jacobi_vector, not args.long)
+            Gauss_Sidel(list_m,list_v, not args.long)
 
     if args.IDET:
-        print("Determinant :",Determinant(example_matrix))
+        print("Determinant :",Determinant(list_m))
 
     print("")
 
