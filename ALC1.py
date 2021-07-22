@@ -1,6 +1,8 @@
 #region Imports
 import copy
 import math
+import argparse
+from argparse import RawTextHelpFormatter
 #endregion
 
 #region ExampleMatrixes
@@ -268,7 +270,7 @@ def Iterative_Jacobi(matrix, vector, isRounded = True, tol = 10**(-5)):
     print("Residue: ", residue)
     print("Number of iterations: ", iteration)
 
-def gauss_seidel(matrix, vector, isRounded = True, tol = 10**(-5)):
+def Gauss_Sidel(matrix, vector, isRounded = True, tol = 10**(-5)):
     try:
         if not ( Diagonally_Dominant(matrix) or ( Is_Symmetric(matrix) and Positive_Definite(matrix) ) ): raise GeneralConvergenceException("Warning : O algoritmo não converge para essa matriz")
     except Exception as ex:
@@ -314,16 +316,46 @@ def gauss_seidel(matrix, vector, isRounded = True, tol = 10**(-5)):
     print("Number of Iterations: ", iteration)
 #endregion
 
-#region Tests
+#region ArgParse
+
 if __name__ == '__main__':
-    print("\nDecomposição LU")
-    LU(example_matrix,example_vector, True)
-    print("\nDecomposição de Cholesky")
-    Cholesky(example_matrix,example_vector, True)
-    print("\nMétodo Iterativo de Jacobi")
-    Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, True)
-    print("\nMétodo de Gauss Seidel")
-    gauss_seidel(example_jacobi_matrix,example_jacobi_vector, True)
+    parser = argparse.ArgumentParser(description="""COC 473 - Computational Linear Algebra First Program \n
+        Example of Usage: monolith.py matrixfile.txt vectorfile.txt --ICOD 1 --IDET 1
+    """,formatter_class=RawTextHelpFormatter)
+    parser.add_argument('matrix', help = "Linear System Matrix that must be solved" )
+    parser.add_argument('vector', help = "Result Vector of the Linear System" )
+    parser.add_argument('ICOD',type=int, help="Select Resolution Method's Number : 1 for LU, 2 for Cholesky, 3 for Jacobi, 4 for Gauss-Sidel")
+    parser.add_argument('--IDET','-d',type=int, help="Select a number greater than zero for return the Determinant of the Matrix")
+    parser.add_argument('--TOLm','-t',type=float, help="Tolerance Number of Jacobi and Gauss-Sidel Methods. Default : 10**(-5)")
+    parser.add_argument('--long','-l',help="Return the long number in scientific notation. Default: Rounded Number",action='store_true')
+
+    args = parser.parse_args()  
+    
+    ########################## Resolution Methods #############################
+    if args.ICOD == 1:
+        print("\nDecomposição LU")
+        LU(example_matrix,example_vector,not args.long)
+    if args.ICOD == 2:
+        print("\nDecomposição de Cholesky")
+        Cholesky(example_matrix,example_vector,not args.long)
+    if args.ICOD == 3:
+        print("\nMétodo Iterativo de Jacobi")
+        if args.TOLm:
+            Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, not args.long, args.TOLm)
+        else:
+            Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector, not args.long)
+    if args.ICOD == 4:
+        print("\nMétodo de Gauss Seidel")
+        if args.TOLm:
+            Gauss_Sidel(example_jacobi_matrix,example_jacobi_vector, not args.long, args.TOLm)
+        else:
+            Gauss_Sidel(example_jacobi_matrix,example_jacobi_vector, not args.long)
+
+    if args.IDET:
+        print("Determinant :",Determinant(example_matrix))
+
+    print("")
+
 #endregion
 
 
