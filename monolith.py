@@ -3,6 +3,8 @@ import math
 
 example_matrix = [[5,-4,1,0],[-4,6,-4,1],[1,-4,6,-4],[0,1,-4,5]]
 example_vector = [-1,2,1,3]
+example_jacobi_matrix = [[6,1,1,1,1],[1,7,1,1,1],[1,1,8,1,1],[1,1,1,9,1],[1,1,1,1,10]]
+example_jacobi_vector = [-10,-6,0,8,18]
 
 #region Exceptions
 
@@ -13,6 +15,9 @@ class NotSymmetricException(Exception):
     pass
 
 class NotPositiveDefiniteException(Exception):
+    pass
+
+class DiagonallyDominantException(Exception):
     pass
 
 #endregion
@@ -42,6 +47,22 @@ def Positive_Definite(matrix):
     for i in range(0,len(matrix)):
         m2 = [[matrix[row][column] for row in range(0,i+1)] for column in range(0,i+1)]
         if Determinant(m2) <= 0 : return False
+    return True
+
+def Diagonally_Dominant(matrix):
+    n = len(matrix)
+    for i in range(0,n):
+        diagonal = matrix[i][i]
+        sigma_l = 0
+        sigma_c = 0
+        for j in range(0,n):
+            if (i != j):
+                sigma_l += math.fabs(matrix[i][j])
+                sigma_c += math.fabs(matrix[j][i])
+
+        if(sigma_l > diagonal or sigma_c > diagonal):
+            return False
+
     return True
 
 #endregion
@@ -130,7 +151,11 @@ def LU(matrix, vector):
     columns = len(matrix[0])
     rows = len(matrix)
 
-    if not Is_Squared(columns,rows): raise NotSquaredException("A matriz não é quadrada")
+    try:
+        if not Is_Squared(columns,rows): raise NotSquaredException("A matriz não é quadrada")
+    except Exception as ex:
+        print(ex)
+        exit()
 
     decomp_matrix = copy.deepcopy(matrix)
 
@@ -143,15 +168,19 @@ def LU(matrix, vector):
                 decomp_matrix[i][j] = float(decomp_matrix[i][j]-decomp_matrix[i][k]*decomp_matrix[k][j])
 
     y = Forward_Sub(decomp_matrix, vector)
-    return Backward_sub(decomp_matrix, y) 
+    print(Backward_sub(decomp_matrix, y))
 
 def Cholesky(matrix, vector):
     columns = len(matrix[0])
     rows = len(matrix)
 
-    if not Is_Squared(columns,rows): raise NotSquaredException("A matriz não é quadrada")
-    if not Is_Symmetric(matrix): raise NotSymmetricException("A matriz não é simétrica")
-    if not Positive_Definite(matrix): raise NotPositiveDefiniteException("A matriz não é positivamente definida")
+    try:
+        if not Is_Squared(columns,rows): raise NotSquaredException("A matriz não é quadrada")
+        if not Is_Symmetric(matrix): raise NotSymmetricException("A matriz não é simétrica")
+        if not Positive_Definite(matrix): raise NotPositiveDefiniteException("A matriz não é positivamente definida")
+    except Exception as ex:
+        print(ex)
+        exit()
 
     decomp_matrix = [[0.0] * len(matrix) for _ in range(len(matrix))]
 
@@ -165,18 +194,58 @@ def Cholesky(matrix, vector):
                 decomp_matrix[i][j] = (1.0/decomp_matrix[j][j])*(matrix[i][j]-total)
 
     y = Forward_Sub(decomp_matrix, vector, True)
-    return Backward_sub(Transposed_Matrix(decomp_matrix), y)
+    print(Backward_sub(Transposed_Matrix(decomp_matrix), y))
+
+def Iterative_Jacobi(matrix, vector):
+    try:
+        if not Diagonally_Dominant(matrix): raise DiagonallyDominantException("Warning : O método não garante a convergência dessa matriz")
+    except Exception as ex:
+        print(ex)
+        exit()
+
+    n = len(matrix)
+    solution_zero = [0.0 for i in range(n)]
+    next_solution = [0.0 for i in range(n)]
+
+    tol = 10**(-5)
+    residue = 1
+    step = 0
+
+    while (residue > tol):
+        numerator = 0
+        denominator = 0
+
+        for j in range(n):
+            next_solution[j] = vector[j]
+            for k in range(n):
+                if (j != k):
+                    next_solution[j] += (-1)*(matrix[j][k] * solution_zero[k])
+            next_solution[j] /= matrix[j][j]
+
+        for z in range(n):
+            numerator += (next_solution[z]-solution_zero[z])**2
+            denominator += next_solution[z]**2
+
+        residue = float(numerator**0.5)/(denominator**0.5)
+
+        for i in range(len(next_solution)):
+            solution_zero[i] = next_solution[i]
+        step += 1
+
+    print("x1: ", next_solution)
+    print("residue: ", residue)
+    print("iteration_number: ", step)
 
 #endregion
 
 #region Tests
-
 if __name__ == '__main__':
-    print("Decomposição LU")
-    print(LU(example_matrix,example_vector))
-    print("#########################")
-    print(Cholesky(example_matrix,example_vector))
-
+    print("\nDecomposição LU")
+    LU(example_matrix,example_vector)
+    print("\nDecomposição de Cholesky")
+    Cholesky(example_matrix,example_vector)
+    print("\nMétodo Iterativo de Jacobi")
+    Iterative_Jacobi(example_jacobi_matrix,example_jacobi_vector)
 #endregion
 
 
