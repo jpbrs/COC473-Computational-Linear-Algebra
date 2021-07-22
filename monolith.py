@@ -270,7 +270,7 @@ def Iterative_Jacobi(matrix, vector, isRounded = True, tol = 10**(-5)):
 
 def gauss_seidel(matrix, vector, isRounded = True, tol = 10**(-5)):
     try:
-        if not ( Diagonally_Dominant(matrix) or ( Is_Symmetric(matrix) and Positive_Definite(matrix) ) ) : raise GeneralConvergenceException("Warning : O algoritmo não converge para essa matriz")
+        if not ( Diagonally_Dominant(matrix) or ( Is_Symmetric(matrix) and Positive_Definite(matrix) ) ): raise GeneralConvergenceException("Warning : O algoritmo não converge para essa matriz")
     except Exception as ex:
         print(ex)
         exit()
