@@ -2,6 +2,7 @@
 import copy
 import math
 import argparse
+from sys import exit
 from argparse import RawTextHelpFormatter
 #endregion
 
@@ -193,7 +194,7 @@ def LU(matrix, vector, isRounded = True):
         for i in range(0,len(solution)):
             solution[i] = round(solution[i],3)
 
-    print("Solution: ",solution)
+    print("Solução: ",solution)
 
 def Cholesky(matrix, vector, isRounded =  True):
     columns = len(matrix[0])
@@ -225,7 +226,7 @@ def Cholesky(matrix, vector, isRounded =  True):
         for i in range(0,len(solution)):
             solution[i] = round(solution[i],3)
 
-    print("Solution: ",solution)
+    print("Solução: ",solution)
 
 def Iterative_Jacobi(matrix, vector, isRounded = True, tol = 10**(-5)):
     try:
@@ -266,9 +267,9 @@ def Iterative_Jacobi(matrix, vector, isRounded = True, tol = 10**(-5)):
             result[i] = round(result[i],3)
         residue = round(residue,3)
 
-    print("Solution: ", result)
-    print("Residue: ", residue)
-    print("Number of iterations: ", iteration)
+    print("Solução: ", result)
+    print("Resíduo: ", residue)
+    print("Número de Iterações: ", iteration)
 
 def Gauss_Sidel(matrix, vector, isRounded = True, tol = 10**(-5)):
     try:
@@ -311,9 +312,9 @@ def Gauss_Sidel(matrix, vector, isRounded = True, tol = 10**(-5)):
             solution[i] = round(solution[i],3)
         residue = round(residue,3)
 
-    print("Solution: ", solution)
-    print("Residue: ", residue)
-    print("Number of Iterations: ", iteration)
+    print("Solução: ", result)
+    print("Resíduo: ", residue)
+    print("Número de Iterações: ", iteration)
 #endregion
 
 #region ArgParse
