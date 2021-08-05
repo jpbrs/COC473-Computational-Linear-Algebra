@@ -123,6 +123,7 @@ def Vect_Mul(vector_a, vector_b):
                 result += vector_a[i]*vector_b[i]
 
     return result
+    
 
 #endregion
 
