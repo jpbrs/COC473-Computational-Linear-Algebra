@@ -112,13 +112,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""COC 473 - Computational Linear Algebra - Second Exam - Second Task \n
         General example of Usage: task2 ICOD specific-parameters --TOLm
 
-        Example for Bissection Method: task2 1 --firstPoint/-fp --secondPoint/-sp --TOLm 0.0001(default : 0.0000001)
-        Example for Gauss Quadrature Method: task2 2 --firstPoint/-fp --secondPoint/-sp --numberOfPoints/-np(between 2 and 10)
-        Example for Finite Difference Derivative: task2 3 --xPoint/-x --xDelta/-d --method/-m(1 for Central, 2 for Stepforward, 3 for Backforward)
-        Example for Richard Extrapolation Derivative Method: task2 4 --xPoint/-x --xDelta/-d --method/-m(1 for Central, 2 for Stepforward, 3 for Backforward)
+        Example for Bissection Method: 
+        task2 1 c1 c2 c3 c4 --firstPoint/-fp --secondPoint/-sp --TOLm 0.0001(default : 0.0000001)
+        
+        Example for Gauss Quadrature Method: 
+        task2 2 c1 c2 c3 c4 --firstPoint/-fp --secondPoint/-sp --numberOfPoints/-np(between 2 and 10)
+
+        Example for Finite Difference Derivative:
+        task2 3 c1 c2 c3 c4 --xPoint/-x --xDelta/-d --method/-m(1 for Central, 2 for Stepforward, 3 for Backforward)
+        
+        Example for Richard Extrapolation Derivative Method:
+        task2 4 c1 c2 c3 c4 --xPoint/-x --xDelta/-d --method/-m(1 for Central, 2 for Stepforward, 3 for Backforward)
     
     """,formatter_class=RawTextHelpFormatter)
     parser.add_argument('ICOD',type=int, help="Select the functionality wanted: 1 for root, 2 for integral, 3 for DF derivative, 4 for RE derivative")
+    parser.add_argument('c1',type=int, help="Value of C1")
+    parser.add_argument('c2',type=int, help="Value of C2")
+    parser.add_argument('c3',type=int, help="Value of C3")
+    parser.add_argument('c4',type=int, help="Value of C4")
+
     parser.add_argument('--firstPoint','-fp', type=float, help = "First point for Bissection and Gauss Quadrature Methods." )
     parser.add_argument('--secondPoint','-sp', type=float, help = "Second point for Bissection and Gauss Quadrature Methods." )
     parser.add_argument('--numberOfPoints','-np', type=int, help = "Number of Points for Gauss Quadrature Method." )
@@ -132,6 +144,10 @@ if __name__ == '__main__':
     ########################## Resolution Methods #############################
 
     if(args.TOLm): tolM = args.TOLm
+    c1 = args.c1
+    c2 = args.c2
+    c3 = args.c3
+    c4 = args.c4
 
     if args.ICOD == 1:
         if(args.firstPoint and args.secondPoint):
